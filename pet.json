@@ -1,7 +1,7 @@
 {
   "id": "chinchilla",
-  "displayName": "龙猫",
-  "description": "Your gray and white chinchilla with soft fur, big pink ears and shiny black eyes.",
+  "displayName": "Chinchilla",
+  "description": "A gray and white chinchilla companion with expressive animations and 16 directional gaze poses.",
   "spritesheetPath": "spritesheet.webp",
   "spriteVersionNumber": 2
 }

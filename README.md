@@ -1,33 +1,26 @@
-# 龙猫 · Codex Chinchilla Pet
+# Chinchilla for Codex
 
-一只灰白色、粉耳朵的毛茸茸龙猫，采用 Codex 自定义宠物 **v2** 格式，包含 **9 组状态动画 + 16 个视线方向**。
+A custom chinchilla companion for the Codex desktop app, featuring nine animation states and 16 directional gaze poses. Built for the **v2 pet format**, with detailed fur, expressive ears, and a transparent sprite atlas.
 
-![视线方向预览](previews/look-directions.gif)
+![Chinchilla directional gaze preview](previews/look-directions.gif)
 
-## 功能
+## Features
 
-| 动作 | 表现 |
-| --- | --- |
-| 待机 | 呼吸、眨眼 |
-| 向右跑 / 向左跑 | 两组方向移动动画 |
-| 挥手 | 抬爪打招呼 |
-| 跳跃 | 蓄力、腾空、落地 |
-| 失败 | 低头、沮丧 |
-| 等待 | 等待输入或确认 |
-| 工作中 | 思考和忙碌 |
-| 检查结果 | 专注观察 |
-| 视线方向 | 以 22.5° 为间隔的 16 个方向姿态 |
+- **Nine animation states** for idle, movement, greetings, jumping, and task activity.
+- **16 gaze directions** arranged clockwise in 22.5-degree increments.
+- **Transparent WebP artwork** with a consistent character silhouette and grounded stance.
+- **Two-file installation** with no build step or additional dependencies.
 
-动作触发和鼠标视线切换由支持宠物 v2 的 Codex 应用控制。GIF 展示的是方向姿态循环，不代表应用的实际播放速度。
+## Installation
 
-## 安装（Windows）
+Requires a Codex desktop version that supports custom v2 pets. The instructions below use the default Windows configuration directory.
 
-1. 下载本仓库：点击 **Code → Download ZIP**，然后解压。
-2. 如果已有同名宠物，请先备份 `%USERPROFILE%\.codex\pets\chinchilla` 文件夹。
-3. 创建上述 `chinchilla` 文件夹，把仓库根目录的 **pet.json** 和 **spritesheet.webp** 一起复制进去。
-4. 在 Codex 的宠物选择界面选择 **龙猫**；如列表未更新，可重新打开应用。
+1. Download the repository using **Code → Download ZIP**, then extract it.
+2. Back up any existing `%USERPROFILE%\.codex\pets\chinchilla` directory before replacing its contents.
+3. Create that directory if needed, then copy `pet.json` and `spritesheet.webp` from the repository root into it.
+4. Select **Chinchilla** in the Codex pet picker. Reopen the app if the updated pet does not appear.
 
-安装目录应为：
+The installed directory should contain:
 
 ```text
 %USERPROFILE%\.codex\pets\chinchilla\
@@ -35,24 +28,51 @@
 └── spritesheet.webp
 ```
 
-卸载时移除该宠物文件夹；若要恢复旧版，复制回自己的备份。
+Only these two files are required. The `previews/` directory contains documentation assets.
 
-## 格式
+To uninstall, remove the `chinchilla` directory. To restore an earlier version, replace it with your backup.
 
-- 宠物 ID：`chinchilla`
-- 显示名称：`龙猫`
-- 版本：`spriteVersionNumber: 2`
-- 图集：透明 WebP，1536 × 2288 像素
-- 布局：8 列 × 11 行，每格 192 × 208 像素
-- 第 0–8 行：标准动作；第 9–10 行：16 个顺时针视线方向
-- 0° 表示向上，90° 向右，180° 向下，270° 向左
+## Animation States
 
-帧数由 v2 格式约定，方向姿态数量不是视频帧率。修改 GIF 播放速度不会改变应用内动画速度。
+| State | Behavior | Frames |
+| --- | --- | ---: |
+| Idle | Subtle breathing and blinking | 6 |
+| Running right | Rightward locomotion | 8 |
+| Running left | Leftward locomotion | 8 |
+| Waving | A raised-paw greeting | 4 |
+| Jumping | Anticipation, lift, and landing | 5 |
+| Failed | A subdued reaction to an error | 8 |
+| Waiting | An attentive pose awaiting input or approval | 6 |
+| Working | Focused task activity | 6 |
+| Review | Attentive inspection | 6 |
 
-## 预览与制作
+Codex controls animation triggers and gaze selection. The preview GIF cycles through the gaze poses for demonstration; its playback speed does not represent the app's runtime behavior.
 
-![完整动作图集预览](previews/contact-sheet.png)
+## Sprite Format
 
-本次升级使用内置图像生成工具制作新增和修复姿态，并通过确定性图集组装、透明背景验证、方向盲测和动画视觉检查。修复了等待动作的尾巴换边问题，并改善了跳跃动作的腾空表现。
+| Property | Value |
+| --- | --- |
+| Pet ID | `chinchilla` |
+| Display name | `Chinchilla` |
+| Sprite version | `2` |
+| Image format | WebP with transparency |
+| Atlas dimensions | 1536 × 2288 px |
+| Grid | 8 columns × 11 rows |
+| Cell dimensions | 192 × 208 px |
+| Standard animations | Rows 0–8 |
+| Directional gaze | Rows 9–10, 16 poses |
 
-使用时只需要根目录的两个宠物文件；`previews/` 用于展示。
+Gaze angles increase clockwise: **0° up**, **90° right**, **180° down**, and **270° left**. The number of gaze poses is separate from animation frame rate. Adding frames outside the v2 layout or changing the preview GIF does not change playback in Codex.
+
+## Preview
+
+<details>
+<summary>View all animation states and gaze poses</summary>
+
+![Complete animation and gaze contact sheet](previews/contact-sheet.png)
+
+</details>
+
+## Asset Validation
+
+The artwork was produced with image generation and assembled into the v2 atlas using deterministic image processing. The published package passed layout, transparency, and occupied-cell validation, followed by visual review of animation continuity and character consistency. Three independent reviewers also checked the gaze directions without angle labels.
