@@ -1,7 +1,7 @@
 {
   "id": "chinchilla",
-  "displayName": "Chinchilla",
-  "description": "A gray and white chinchilla companion with expressive animations and 16 directional gaze poses.",
-  "spritesheetPath": "spritesheet.webp",
-  "spriteVersionNumber": 2
+  "displayName": "龙猫",
+  "description": "A refined silver-gray chinchilla with expressive paws, natural velvet fur and sixteen coherent look directions.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp"
 }

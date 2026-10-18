@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chinchilla · 龙猫 — animation preview</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #26382f; background: #f4f3ee; }
+    * { box-sizing: border-box; }
+    body { max-width: 880px; margin: 48px auto; padding: 0 24px 32px; }
+    header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    h1 { margin: 0; font-size: clamp(26px, 5vw, 34px); letter-spacing: -.03em; }
+    h1 span { color: #647368; font-weight: 450; }
+    .version { border: 1px solid #d6ddd2; border-radius: 99px; padding: 5px 11px; font-size: 12px; white-space: nowrap; }
+    p { color: #617066; line-height: 1.65; }
+    a { color: #355c45; text-underline-offset: 3px; }
+    button, input { accent-color: #355c45; }
+    button { font: inherit; padding: 9px 13px; border: 1px solid #ccd5c8; border-radius: 9px; background: #fff; color: inherit; cursor: pointer; }
+    button:hover { border-color: #708c73; }
+    button[aria-pressed="true"] { color: #fff; background: #355c45; border-color: #355c45; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #99b3a0; outline-offset: 3px; }
+    #states { display: flex; flex-wrap: wrap; gap: 7px; margin: 24px 0 18px; }
+    .viewer { padding: 20px; border: 1px solid #dce2d7; border-radius: 20px; background: #fff; }
+    .stage { height: 268px; display: grid; place-items: center; border-radius: 12px; background: #ecefe7; }
+    .dark .stage { background: #202923; }
+    .pet { width: 192px; height: 208px; background: url("./spritesheet.webp") no-repeat; background-size: 1536px 2288px; }
+    .controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 17px; }
+    .scrubber { display: flex; align-items: center; gap: 9px; flex: 1 1 210px; }
+    .scrubber input { width: 100%; min-width: 100px; }
+    .background { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 14px; }
+    #status { display: block; min-height: 22px; margin-top: 14px; color: #526458; font-size: 14px; }
+    #lookpad { position: relative; height: 220px; margin-top: 20px; border: 1px dashed #9bac9b; border-radius: 16px; display: grid; place-items: center; padding: 20px; text-align: center; user-select: none; touch-action: none; color: #617066; }
+    #lookpad.active { background: #e6ede2; }
+    #lookpad::before { content: "+"; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); color: #6c8773; font-size: 24px; }
+    #lookpad span { align-self: end; font-size: 14px; }
+    .note { font-size: 13px; }
+    #error { color: #943b35; }
+    footer { margin-top: 22px; display: flex; gap: 18px; font-size: 14px; }
+    @media (max-width: 520px) { body { margin-top: 28px; padding-inline: 16px; } .viewer { padding: 14px; } #states button { flex: 1 0 auto; } .scrubber { flex-basis: 100%; order: 2; } }
+    @media (prefers-reduced-motion: reduce) { .note::after { content: " Playback starts paused because reduced motion is enabled."; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chinchilla <span>· 龙猫</span></h1>
+    <span class="version">Release 1.1.0 · sprite format v2</span>
+  </header>
+  <p>Nine animation states and sixteen gaze directions, displayed at the pet’s native 192 × 208 px size.</p>
+  <div id="states" role="group" aria-label="Animation state"></div>
+  <section class="viewer" aria-label="Animation preview">
+    <div class="stage"><div class="pet" id="pet" role="img" aria-label="Chinchilla animation"></div></div>
+    <div class="controls">
+      <button id="pause" type="button">Pause</button>
+      <button id="previous" type="button" aria-label="Previous frame">← Frame</button>
+      <button id="next" type="button" aria-label="Next frame">Frame →</button>
+      <label class="scrubber" for="frame">Frame <input type="range" id="frame" min="0" max="5" value="0"></label>
+      <label class="background"><input type="checkbox" id="dark"> Dark background</label>
+    </div>
+    <output id="status" aria-live="off">Idle · frame 1 of 6</output>
+    <p id="error" hidden>The sprite atlas could not be loaded. Keep this HTML file next to spritesheet.webp.</p>
+  </section>
+  <div id="lookpad" aria-label="Move the pointer or drag here to preview sixteen gaze directions">
+    <span>Move the pointer or drag around the center to test gaze.<br>Leave the pad to return to the selected animation.</span>
+  </div>
+  <p class="note">Angles run clockwise: 0° up, 90° right, 180° down, 270° left. Preview timings are illustrative; Codex controls runtime animation and gaze.</p>
+  <noscript><p>Enable JavaScript to use the animation controls. The atlas is also available below.</p></noscript>
+  <footer><a href="./README.md">Installation &amp; release notes</a><a href="./spritesheet.webp">View sprite atlas</a></footer>
+  <script>
+    const rows = [
+      { name: "Idle", row: 0, times: [280, 110, 110, 140, 140, 320] },
+      { name: "Running right", row: 1, times: [120, 120, 120, 120, 120, 120, 120, 220] },
+      { name: "Running left", row: 2, times: [120, 120, 120, 120, 120, 120, 120, 220] },
+      { name: "Waving", row: 3, times: [140, 140, 140, 280] },
+      { name: "Jumping", row: 4, times: [140, 140, 140, 140, 280] },
+      { name: "Failed", row: 5, times: [140, 140, 140, 140, 140, 140, 140, 240] },
+      { name: "Waiting", row: 6, times: [150, 150, 150, 150, 150, 260] },
+      { name: "Working", row: 7, times: [120, 120, 120, 120, 120, 220] },
+      { name: "Review", row: 8, times: [150, 150, 150, 150, 150, 280] }
+    ];
+    const pet = document.querySelector("#pet");
+    const stateControls = document.querySelector("#states");
+    const frameInput = document.querySelector("#frame");
+    const statusText = document.querySelector("#status");
+    const pauseButton = document.querySelector("#pause");
+    const pad = document.querySelector("#lookpad");
+    let state = 0;
+    let frame = 0;
+    let paused = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let looking = false;
+    let last = performance.now();
+
+    function show(row, column) {
+      pet.style.backgroundPosition = `${-column * 192}px ${-row * 208}px`;
+    }
+
+    function draw() {
+      const selected = rows[state];
+      show(selected.row, frame);
+      frameInput.value = frame;
+      frameInput.setAttribute("aria-valuetext", `Frame ${frame + 1} of ${selected.times.length}`);
+      statusText.textContent = `${selected.name} · frame ${frame + 1} of ${selected.times.length}`;
+      pet.setAttribute("aria-label", `Chinchilla: ${selected.name}, frame ${frame + 1}`);
+    }
+
+    function returnToAnimation() {
+      looking = false;
+      pad.classList.remove("active");
+      last = performance.now();
+      draw();
+    }
+
+    function setPaused(value) {
+      paused = value;
+      pauseButton.textContent = paused ? "Play" : "Pause";
+      last = performance.now();
+    }
+
+    function choose(index) {
+      state = index;
+      frame = 0;
+      frameInput.max = rows[index].times.length - 1;
+      [...stateControls.children].forEach((button, i) => button.setAttribute("aria-pressed", String(i === index)));
+      returnToAnimation();
+    }
+
+    rows.forEach((entry, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = entry.name;
+      button.addEventListener("click", () => choose(index));
+      stateControls.append(button);
+    });
+
+    pauseButton.addEventListener("click", () => {
+      setPaused(!paused);
+      returnToAnimation();
+    });
+    function step(direction) {
+      setPaused(true);
+      const count = rows[state].times.length;
+      frame = (frame + direction + count) % count;
+      returnToAnimation();
+    }
+    document.querySelector("#previous").addEventListener("click", () => step(-1));
+    document.querySelector("#next").addEventListener("click", () => step(1));
+    frameInput.addEventListener("input", () => {
+      setPaused(true);
+      frame = Number(frameInput.value);
+      returnToAnimation();
+    });
+    document.querySelector("#dark").addEventListener("change", event => document.body.classList.toggle("dark", event.target.checked));
+
+    function look(event) {
+      const bounds = pad.getBoundingClientRect();
+      const dx = event.clientX - bounds.left - bounds.width / 2;
+      const dy = event.clientY - bounds.top - bounds.height / 2;
+      if (Math.hypot(dx, dy) < 18) {
+        returnToAnimation();
+        return;
+      }
+      looking = true;
+      pad.classList.add("active");
+      const angle = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360;
+      const direction = Math.round(angle / 22.5) % 16;
+      show(9 + Math.floor(direction / 8), direction % 8);
+      statusText.textContent = `Gaze · ${direction * 22.5}°`;
+      pet.setAttribute("aria-label", `Chinchilla gaze at ${direction * 22.5} degrees clockwise from up`);
+    }
+    pad.addEventListener("pointermove", look);
+    pad.addEventListener("pointerdown", look);
+    pad.addEventListener("pointerleave", returnToAnimation);
+    pad.addEventListener("pointercancel", returnToAnimation);
+    pad.addEventListener("pointerup", event => {
+      if (event.pointerType !== "mouse") returnToAnimation();
+    });
+    document.addEventListener("visibilitychange", () => { last = performance.now(); });
+
+    const atlas = new Image();
+    atlas.onerror = () => { document.querySelector("#error").hidden = false; };
+    atlas.src = "./spritesheet.webp";
+
+    function tick(now) {
+      if (!paused && !looking && now - last >= rows[state].times[frame]) {
+        frame = (frame + 1) % rows[state].times.length;
+        last = now;
+        draw();
+      }
+      requestAnimationFrame(tick);
+    }
+    setPaused(paused);
+    choose(0);
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

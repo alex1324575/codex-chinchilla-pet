@@ -63,7 +63,7 @@ if ($RestoreBackup) {
         throw 'The selected backup is not a pet installation.'
     }
 } else {
-    $checksums = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot 'checksums.json') | ConvertFrom-Json
+    $checksums = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $PSScriptRoot 'checksums.json') | ConvertFrom-Json
     foreach ($name in @('pet.json', 'spritesheet.webp')) {
         $source = Join-Path $PSScriptRoot $name
         Assert-PlainPath $source
@@ -73,7 +73,7 @@ if ($RestoreBackup) {
             throw "Package checksum mismatch: $name. Download and extract the release again."
         }
     }
-    $metadata = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot 'pet.json') | ConvertFrom-Json
+    $metadata = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $PSScriptRoot 'pet.json') | ConvertFrom-Json
     if ($metadata.id -ne 'chinchilla' -or $metadata.spriteVersionNumber -ne 2 -or
         $metadata.spritesheetPath -ne 'spritesheet.webp') {
         throw 'This installer requires the Chinchilla v2 package.'
@@ -131,4 +131,5 @@ if ($savedBackup) {
     Write-Output "Previous installation preserved: $savedBackup"
     Write-Output "To restore it, run install.ps1 with -RestoreBackup '$backupName' and the same -CodexHome, if specified."
 }
-Write-Output 'Select Chinchilla in the Codex pet picker. Reopen Codex if needed.'
+if ($RestoreBackup) { Write-Output 'Select the restored pet in the Codex pet picker. Reopen Codex if needed.' }
+else { Write-Output "Select '$($metadata.displayName)' in the Codex pet picker. Reopen Codex if needed." }
