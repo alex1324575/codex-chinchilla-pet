@@ -1,0 +1,2 @@
+# Preserve the exact manifest bytes verified by checksums.json.
+/pet.json text eol=lf
